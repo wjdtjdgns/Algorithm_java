@@ -1,44 +1,51 @@
 import java.io.*;
-import java.util.ArrayDeque;
-import java.util.Arrays;
-import java.util.Deque;
+import java.util.*;
 
 public class BOJ24511 {
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
         StringBuilder sb = new StringBuilder();
+
         int N = Integer.parseInt(br.readLine());
-        int[] A = Arrays.stream(br.readLine().split(" ")).mapToInt(Integer::parseInt).toArray();
-        int[] B = Arrays.stream(br.readLine().split(" ")).mapToInt(Integer::parseInt).toArray();
-        int M = Integer.parseInt(br.readLine());
-        int[] C = Arrays.stream(br.readLine().split(" ")).mapToInt(Integer::parseInt).toArray();
 
-        Deque<Integer>[] dataStructures = new ArrayDeque[N];
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        int[] type = new int[N];
         for (int i = 0; i < N; i++) {
-            dataStructures[i] = new ArrayDeque<>();
-            dataStructures[i].add(B[i]);
+            type[i] = Integer.parseInt(st.nextToken());
         }
 
-        for (int x : C) {
-            int currentValue = x;
+        st = new StringTokenizer(br.readLine());
+        int[] elements = new int[N];
+        for (int i = 0; i < N; i++) {
+            elements[i] = Integer.parseInt(st.nextToken());
+        }
 
-            for (int i = 0; i < N; i++) {
-                dataStructures[i].addLast(currentValue);
+        int M = Integer.parseInt(br.readLine());
 
-                if (A[i] == 0) {
-                    currentValue = dataStructures[i].removeFirst();
-                } else {
-                    currentValue = dataStructures[i].removeLast();
-                }
+        st = new StringTokenizer(br.readLine());
+        int[] sequence = new int[M];
+        for (int i = 0; i < M; i++) {
+            sequence[i] = Integer.parseInt(st.nextToken());
+        }
+
+        Deque<Integer> queue = new ArrayDeque<>();
+        for (int i = 0; i < N; i++) {
+            if (type[i] == 0) {
+                queue.addLast(elements[i]);
             }
-
-            sb.append(currentValue).append(" ");
         }
 
-        bw.write(sb.toString());
-        bw.flush();
-        bw.close();
-        br.close();
+        for (int i = 0; i < M; i++) {
+            int input = sequence[i];
+
+            if (!queue.isEmpty()) {
+                queue.addFirst(input);
+                sb.append(queue.removeLast()).append(" ");
+            } else {
+                sb.append(input).append(" ");
+            }
+        }
+
+        System.out.println(sb.toString().trim());
     }
 }
