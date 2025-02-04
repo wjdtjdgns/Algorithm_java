@@ -1,90 +1,75 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.io.*;
+import java.util.*;
 
 public class BOJ10026 {
     static int N;
-    static char[][] graph;
-    static char[][] colorBlindGraph;
-    static boolean[][] visit;
-    static boolean[][] colorBlindVisit;
+    static char[][] map;
+    static boolean[][] visited;
     static int[] dx = {-1, 1, 0, 0};
     static int[] dy = {0, 0, -1, 1};
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         N = Integer.parseInt(br.readLine());
-
-        graph = new char[N][N];
-        colorBlindGraph = new char[N][N];
-        visit = new boolean[N][N];
-        colorBlindVisit = new boolean[N][N];
+        map = new char[N][N];
 
         for (int i = 0; i < N; i++) {
-            String line = br.readLine();
-            for (int j = 0; j < N; j++) {
-                graph[i][j] = line.charAt(j);
-                colorBlindGraph[i][j] = (line.charAt(j) == 'G') ? 'R' : line.charAt(j);
-            }
+            map[i] = br.readLine().toCharArray();
         }
 
-        int count = 0, colorBlindCount = 0;
+        visited = new boolean[N][N];
+        int normalCount = countRegions(false);
 
+        visited = new boolean[N][N];
+        int colorBlindCount = countRegions(true);
+
+        System.out.println(normalCount + " " + colorBlindCount);
+    }
+
+    private static int countRegions(boolean isColorBlind) {
+        int count = 0;
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {
-                if (!visit[i][j]) {
-                    bfs(j, i, graph[i][j], false);
+                if (!visited[i][j]) {
+                    bfs(i, j, isColorBlind);
                     count++;
                 }
             }
         }
-
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                if (!colorBlindVisit[i][j]) {
-                    bfs(j, i, colorBlindGraph[i][j], true);
-                    colorBlindCount++;
-                }
-            }
-        }
-
-        System.out.println(count + " " + colorBlindCount);
+        return count;
     }
 
-    public static void bfs(int x, int y, char color, boolean isColorBlind) {
+    private static void bfs(int x, int y, boolean isColorBlind) {
         Queue<int[]> queue = new LinkedList<>();
         queue.add(new int[]{x, y});
-
-        if (!isColorBlind) {
-            visit[y][x] = true;
-        } else {
-            colorBlindVisit[y][x] = true;
-        }
+        visited[x][y] = true;
+        char color = map[x][y];
 
         while (!queue.isEmpty()) {
-            int[] cur = queue.poll();
-            int curX = cur[0], curY = cur[1];
+            int[] pos = queue.poll();
+            int cx = pos[0];
+            int cy = pos[1];
 
             for (int i = 0; i < 4; i++) {
-                int nx = curX + dx[i];
-                int ny = curY + dy[i];
+                int nx = cx + dx[i];
+                int ny = cy + dy[i];
 
-                if (nx < 0 || ny < 0 || nx >= N || ny >= N) continue;
-
-                if (!isColorBlind) {
-                    if (!visit[ny][nx] && graph[ny][nx] == color) {
-                        visit[ny][nx] = true;
-                        queue.add(new int[]{nx, ny});
-                    }
-                } else {
-                    if (!colorBlindVisit[ny][nx] && colorBlindGraph[ny][nx] == color) {
-                        colorBlindVisit[ny][nx] = true;
+                if (nx >= 0 && nx < N && ny >= 0 && ny < N && !visited[nx][ny]) {
+                    if (isSameColor(color, map[nx][ny], isColorBlind)) {
+                        visited[nx][ny] = true;
                         queue.add(new int[]{nx, ny});
                     }
                 }
             }
         }
+    }
+
+    private static boolean isSameColor(char c1, char c2, boolean isColorBlind) {
+        if (isColorBlind) {
+            if ((c1 == 'R' || c1 == 'G') && (c2 == 'R' || c2 == 'G')) {
+                return true;
+            }
+        }
+        return c1 == c2;
     }
 }
